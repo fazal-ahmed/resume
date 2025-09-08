@@ -48,7 +48,7 @@ export default function ChatBotPage({ userId = "Sophia" }) {
         content: m.content,
       }));
       const res = await axios.post(
-        `http://localhost:8000/chat/${userId}`,
+        `https://fazalkhan6283683-resume.hf.space/chat/${userId}`,
         {
           message: userMsg.content,
           history,

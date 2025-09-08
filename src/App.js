@@ -26,7 +26,7 @@ function UploadPage() {
     data.append("email", form.email);
     data.append("description", form.description);
     if (resume) data.append("resume", resume);
-    await axios.post("/items", data);
+    await axios.post("https://fazalkhan6283683-resume.hf.space/items", data);
     navigate(`/resume-agent/${form.email}`);
   };
 
