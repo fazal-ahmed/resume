@@ -1,0 +1,54 @@
+/* UploadPage.css */
+.upload-root {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #111418;
+  color: #fff;
+  border-radius: 12px;
+  font-family: 'Inter', 'Noto Sans', sans-serif;
+}
+
+.upload-root h2 {
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.upload-input,
+.upload-textarea,
+.upload-file {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #283039;
+  background: #1a1f25;
+  color: #fff;
+  font-size: 14px;
+}
+
+.upload-input::placeholder,
+.upload-textarea::placeholder {
+  color: #9cabba;
+}
+
+.upload-btn {
+  background: #0d7ff2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.upload-btn:hover {
+  background: #0b6cd6;
+}
