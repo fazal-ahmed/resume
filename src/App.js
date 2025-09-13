@@ -13,26 +13,39 @@ import ChatBotPage from "./ChatBotPage";
 function UploadPage() {
   const [form, setForm] = useState({ name: "", email: "", description: "" });
   const [resume, setResume] = useState(null);
+  const [loading, setLoading] = useState(false);   // <-- new state
   const navigate = useNavigate();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
+
   const handleFile = (e) => setResume(e.target.files[0]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    data.append("name", form.name);
-    data.append("email", form.email);
-    data.append("description", form.description);
-    if (resume) data.append("resume", resume);
-    await axios.post("https://fazalkhan6283683-resume.hf.space/items", data);
-    navigate(`/resume-agent/${form.email}`);
+    setLoading(true); // show loader
+
+    try {
+      const data = new FormData();
+      data.append("name", form.name);
+      data.append("email", form.email);
+      data.append("description", form.description);
+      if (resume) data.append("resume", resume);
+
+      await axios.post("/items", data);
+      navigate(`/resume-agent/${form.email}`);
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Upload failed. Please try again.");
+    } finally {
+      setLoading(false); // hide loader no matter what
+    }
   };
 
   return (
     <div className="upload-root">
       <h2>Upload Resume</h2>
+
       <form onSubmit={handleSubmit} className="upload-form">
         <input
           className="upload-input"
@@ -60,9 +73,18 @@ function UploadPage() {
           accept="application/pdf"
           onChange={handleFile}
         />
-        <button className="upload-btn" type="submit">
-          Upload
+
+        <button className="upload-btn" type="submit" disabled={loading}>
+          {loading ? "Uploading..." : "Upload"}
         </button>
+
+        {loading && (
+          <div className="loader">
+            {/* simple spinner — style with CSS */}
+            <div className="spinner" />
+            <p>Uploading your resume…</p>
+          </div>
+        )}
       </form>
     </div>
   );
@@ -80,7 +102,6 @@ function App() {
   );
 }
 
-// Wrapper to pass userId param to ChatBotPage
 function ChatBotPageWrapper() {
   const { userId } = useParams();
   return <ChatBotPage userId={userId} />;

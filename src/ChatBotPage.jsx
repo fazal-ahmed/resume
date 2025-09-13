@@ -1,43 +1,46 @@
-// ChatBotPage.jsx
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import "./ChatBotPage.css";
 
-const userAvatar =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDlnfRnUKQY5xPtDwCWQ-ajAfQ28fjUXyv6t6gxqERSFSa491na_qdX12r0pOFBzKIJeEnwCdJp4cQdMfrmNT5o2odSSMPh5niAe-P16oyI7obfUxVlhEvakKKFPUw2zSLoZgvM53doppCC4uVtkgJ5ymdFcU16QBG3qjOd9F2a273Qq7hAEY7S6h43QQXQHUU9cdB4Ud1JmiY6fFl6GT0ErsR_5xekQRt0GwRBjI2Je3DVFoF6qHEW1psILGwcpw6reX5hEGYezA";
-const agentAvatar =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAUzo8hPgN_iX4Gjmysd4eEsEYlZ0-ew9EZkRKnBBdtjbfo6kYfeia-h2diqEDMEfQhuS7OFVonhpk-FnlxSHBR379gMJTQ3PGTILrIDeTC5RhRoGWWH7cm4NOG0oArocau0GwSoVc5lH0XF0Rppz1sKKWwureDskeG3ZtWbY0Q_wOPnuISQWorogzkmnyfxCvRtNMkdzsJr6RcGzrbkPBWDwnuIOq2ZGq4K83HnV_Kvv3ZFrajhLHtiV2FredB3o_LlmyMHTIoXQ";
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
 
 export default function ChatBotPage({ userId = "Sophia" }) {
   const [messages, setMessages] = useState([
+    { role: "agent", content: `Hey, how can I help you?` },
     {
       role: "agent",
-      content: "Hey, how can i help you?",
-      time: "10:00 AM",
+      content: `I'm your personal resume assistant.\nYou can ask me questions about my professional career and skills.`,
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [listening, setListening] = useState(false);
   const chatEndRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  function formatTime(date = new Date()) {
-    return date
+  const formatTime = () =>
+    new Date()
       .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
       .replace(/^0/, "");
-  }
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-    const userMsg = {
-      role: "user",
-      content: input,
-      time: formatTime(),
-    };
+  const speak = (text) => {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    speechSynthesis.speak(utter);
+  };
+
+  const handleSend = async (e, overrideText) => {
+    if (e) e.preventDefault();
+    const messageText = overrideText ?? input;
+    if (!messageText.trim()) return;
+
+    const userMsg = { role: "user", content: messageText, time: formatTime() };
     setMessages((msgs) => [...msgs, userMsg]);
     setInput("");
     setLoading(true);
@@ -47,21 +50,15 @@ export default function ChatBotPage({ userId = "Sophia" }) {
         role: m.role === "agent" ? "model" : "user",
         content: m.content,
       }));
-      const res = await axios.post(
-        `https://fazalkhan6283683-resume.hf.space/chat/${userId}`,
-        {
-          message: userMsg.content,
-          history,
-        }
-      );
-      setMessages((msgs) => [
-        ...msgs,
-        {
-          role: "agent",
-          content: res.data.answer,
-          time: formatTime(),
-        },
-      ]);
+
+      const res = await axios.post(`http://localhost:8000/chat/${userId}`, {
+        message: messageText,
+        history,
+      });
+
+      const reply = { role: "agent", content: res.data.answer, time: formatTime() };
+      setMessages((msgs) => [...msgs, reply]);
+      speak(res.data.answer); // 🎤 Speak out the answer
     } catch (err) {
       setMessages((msgs) => [
         ...msgs,
@@ -75,6 +72,36 @@ export default function ChatBotPage({ userId = "Sophia" }) {
     setLoading(false);
   };
 
+  const startListening = () => {
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      // setShowVoiceModal(false);
+      const fakeEvent = { preventDefault: () => {} };
+      handleSend(fakeEvent, transcript);
+    };
+
+    recognition.onerror = (e) => console.error("Speech error:", e);
+    recognition.onend = () => setListening(false);
+
+    recognition.start();
+    recognitionRef.current = recognition;
+    setListening(true);
+  };
+
+  const stopListening = () => {
+    recognitionRef.current?.stop();
+    setListening(false);
+  };
+
   return (
     <div className="chat-root">
       {/* Header */}
@@ -86,12 +113,9 @@ export default function ChatBotPage({ userId = "Sophia" }) {
       {/* Messages */}
       <div className="chat-messages">
         {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`chat-message ${msg.role}`}
-          >
+          <div key={idx} className={`chat-message ${msg.role}`}>
             <div className="chat-bubble">{msg.content}</div>
-            <span className="chat-time">{msg.time}</span>
+            {msg.time && <span className="chat-time">{msg.time}</span>}
           </div>
         ))}
         <div ref={chatEndRef}></div>
@@ -106,10 +130,51 @@ export default function ChatBotPage({ userId = "Sophia" }) {
           onChange={(e) => setInput(e.target.value)}
           disabled={loading}
         />
+
+        <button
+          type="button"
+          className="chat-mic-btn"
+          onClick={() => setShowVoiceModal(true)}
+          disabled={loading}
+          style={{ marginRight: "8px" }}
+        >
+          🎤
+        </button>
+
         <button className="chat-send-btn" type="submit" disabled={loading}>
           Send
         </button>
       </form>
+
+      {/* Voice Modal */}
+      {showVoiceModal && (
+        <div className="voice-modal">
+          <div className="voice-box">
+            <h3>Speak your query</h3>
+            <p>{listening ? "Listening..." : "Click start to talk"}</p>
+            <div style={{ marginTop: "12px" }}>
+              {!listening ? (
+                <button onClick={startListening} className="start-btn">
+                  ▶ Start
+                </button>
+              ) : (
+                <button onClick={stopListening} className="stop-btn">
+                  ■ Stop
+                </button>
+              )}
+              <button
+                style={{ marginLeft: "10px" }}
+                onClick={() => {
+                  stopListening();
+                  setShowVoiceModal(false);
+                }}
+              >
+                ✖ Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
