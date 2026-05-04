@@ -5,6 +5,9 @@ import "./ChatBotPage.css";
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL?.replace(/\/$/, "") || "";
+
 export default function ChatBotPage({ userId = "Sophia" }) {
   const [messages, setMessages] = useState([
     { role: "agent", content: `Hey, how can I help you?` },
@@ -51,7 +54,7 @@ export default function ChatBotPage({ userId = "Sophia" }) {
         content: m.content,
       }));
 
-      const res = await axios.post(`https://fazalkhan6283683-resume.hf.space/chat/${userId}`, {
+      const res = await axios.post(`${API_BASE}/api/chat/${userId}`, {
         message: messageText,
         history,
       });

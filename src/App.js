@@ -9,6 +9,9 @@ import {
 import axios from "axios";
 import ChatBotPage from "./ChatBotPage";
 
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL?.replace(/\/$/, "") || "";
+
 // Upload Page
 function UploadPage() {
   const [form, setForm] = useState({ name: "", email: "", description: "" });
@@ -32,7 +35,7 @@ function UploadPage() {
       data.append("description", form.description);
       if (resume) data.append("resume", resume);
 
-      await axios.post("https://fazalkhan6283683-resume.hf.space/items", data);
+      await axios.post(`${API_BASE}/api/items`, data);
       navigate(`/resume-agent/${form.email}`);
     } catch (err) {
       console.error("Upload failed:", err);
