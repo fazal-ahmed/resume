@@ -35,7 +35,7 @@ function UploadPage() {
       data.append("description", form.description);
       if (resume) data.append("resume", resume);
 
-      await axios.post(`${API_BASE}/api/items`, data);
+      await axios.post(`${API_BASE}/items`, data);
       navigate(`/resume-agent/${form.email}`);
     } catch (err) {
       console.error("Upload failed:", err);
