@@ -37,4 +37,6 @@ export function error(...args) {
   console.error(prefix("error"), ...args);
 }
 
-export default { setLevel, debug, info, warn, error };
+const logger = { setLevel, debug, info, warn, error };
+
+export default logger;

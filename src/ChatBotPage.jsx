@@ -3,8 +3,6 @@ import axios from "axios";
 import "./ChatBotPage.css";
 import { debug, info, error as logError } from "./logger";
 
-const SpeechRecognition =
-  window.SpeechRecognition || window.webkitSpeechRecognition;
 
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL?.replace(/\/$/, "") || "";
@@ -81,38 +79,7 @@ export default function ChatBotPage({ userId = "Sophia" }) {
     setLoading(false);
   };
 
-  const startListening = () => {
-    if (!SpeechRecognition) {
-      alert("Speech recognition is not supported in this browser.");
-      return;
-    }
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = "en-US";
-  }
-    /* voice feature temporarily disabled
-    recognition.onresult = (e) => {
-      const transcript = e.results[0][0].transcript;
-      debug('ChatBotPage: speech transcript', { transcript });
-      // setShowVoiceModal(false);
-      const fakeEvent = { preventDefault: () => {} };
-      handleSend(fakeEvent, transcript);
-    };
-
-    recognition.onerror = (e) => logError('Speech error', e);
-    recognition.onend = () => setListening(false);
-
-    recognition.start();
-    recognitionRef.current = recognition;
-    setListening(true);
-  };
-
-  const stopListening = () => {
-    recognitionRef.current?.stop();
-    setListening(false);
-  };
-  */
+  // Voice feature handlers removed while disabled to avoid unused-vars lint errors
 
   return (
     <div className="chat-root">
