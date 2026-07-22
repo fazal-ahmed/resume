@@ -134,3 +134,29 @@
   66% { content: ".."; }
   100% { content: "..."; }
 }
+
+/* Markdown content styling inside chat bubbles */
+.markdown-body {
+  color: #e6f0f5;
+}
+.markdown-body p {
+  margin: 0 0 8px 0;
+}
+.markdown-body ul {
+  margin: 6px 0 6px 18px;
+}
+.markdown-body li {
+  margin-bottom: 4px;
+}
+.markdown-body strong {
+  color: #fff;
+}
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  margin: 0 0 6px 0;
+  color: #fff;
+}
+.markdown-body code {
+  background: rgba(0,0,0,0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}

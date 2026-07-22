@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import "./ChatBotPage.css";
 import { debug, info, error as logError } from "./logger";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 
 const API_BASE =
@@ -93,7 +95,15 @@ export default function ChatBotPage({ userId = "Sophia" }) {
       <div className="chat-messages">
         {messages.map((msg, idx) => (
           <div key={idx} className={`chat-message ${msg.role}`}>
-            <div className="chat-bubble">{msg.content}</div>
+            <div className="chat-bubble">
+              {msg.role === 'agent' ? (
+                <div className="markdown-body">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                </div>
+              ) : (
+                msg.content
+              )}
+            </div>
             {msg.time && <span className="chat-time">{msg.time}</span>}
           </div>
         ))}
