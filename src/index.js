@@ -3,8 +3,10 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { info } from './logger';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+info('Starting app', { env: process.env.NODE_ENV, apiBase: process.env.REACT_APP_API_BASE_URL });
 root.render(
   <React.StrictMode>
     <App />

@@ -113,3 +113,24 @@
 .stop-btn {
   background: #f44336;
 }
+
+.chat-typing .chat-bubble {
+  background: #253238;
+  font-style: italic;
+  opacity: 0.95;
+}
+
+.typing-dots {
+  display: inline-block;
+  margin-left: 8px;
+  width: 30px;
+  text-align: left;
+  animation: dots 1s steps(3,end) infinite;
+}
+
+@keyframes dots {
+  0% { content: ""; }
+  33% { content: "."; }
+  66% { content: ".."; }
+  100% { content: "..."; }
+}

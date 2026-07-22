@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import axios from "axios";
 import ChatBotPage from "./ChatBotPage";
+import { debug, info, error as logError } from "./logger";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE_URL?.replace(/\/$/, "") || "";
@@ -27,6 +28,7 @@ function UploadPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // show loader
+    debug('UploadPage: submit', { name: form.name, email: form.email });
 
     try {
       const data = new FormData();
@@ -36,9 +38,10 @@ function UploadPage() {
       if (resume) data.append("resume", resume);
 
       await axios.post(`${API_BASE}/items`, data);
+      info('Upload succeeded', { email: form.email });
       navigate(`/resume-agent/${form.email}`);
     } catch (err) {
-      console.error("Upload failed:", err);
+      logError("Upload failed:", err);
       alert("Upload failed. Please try again.");
     } finally {
       setLoading(false); // hide loader no matter what

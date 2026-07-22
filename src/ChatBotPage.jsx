@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import "./ChatBotPage.css";
+import { debug, info, error as logError } from "./logger";
 
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -18,13 +19,15 @@ export default function ChatBotPage({ userId = "Sophia" }) {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showVoiceModal, setShowVoiceModal] = useState(false);
-  const [listening, setListening] = useState(false);
+  // voice feature temporarily commented out
+  // const [showVoiceModal, setShowVoiceModal] = useState(false);
+  // const [listening, setListening] = useState(false);
   const chatEndRef = useRef(null);
-  const recognitionRef = useRef(null);
+  // const recognitionRef = useRef(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    debug('ChatBotPage: messages changed', { count: messages.length });
   }, [messages]);
 
   const formatTime = () =>
@@ -47,6 +50,7 @@ export default function ChatBotPage({ userId = "Sophia" }) {
     setMessages((msgs) => [...msgs, userMsg]);
     setInput("");
     setLoading(true);
+    debug('ChatBotPage: sending message', { userId, text: messageText });
 
     try {
       const history = messages.map((m) => ({
@@ -60,9 +64,11 @@ export default function ChatBotPage({ userId = "Sophia" }) {
       });
 
       const reply = { role: "agent", content: res.data.answer, time: formatTime() };
+      info('ChatBotPage: received reply', { userId, answerPreview: (res.data.answer || '').slice(0,120) });
       setMessages((msgs) => [...msgs, reply]);
       speak(res.data.answer); // 🎤 Speak out the answer
     } catch (err) {
+      logError('ChatBotPage: send error', err);
       setMessages((msgs) => [
         ...msgs,
         {
@@ -84,15 +90,17 @@ export default function ChatBotPage({ userId = "Sophia" }) {
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = "en-US";
-
+  }
+    /* voice feature temporarily disabled
     recognition.onresult = (e) => {
       const transcript = e.results[0][0].transcript;
+      debug('ChatBotPage: speech transcript', { transcript });
       // setShowVoiceModal(false);
       const fakeEvent = { preventDefault: () => {} };
       handleSend(fakeEvent, transcript);
     };
 
-    recognition.onerror = (e) => console.error("Speech error:", e);
+    recognition.onerror = (e) => logError('Speech error', e);
     recognition.onend = () => setListening(false);
 
     recognition.start();
@@ -104,6 +112,7 @@ export default function ChatBotPage({ userId = "Sophia" }) {
     recognitionRef.current?.stop();
     setListening(false);
   };
+  */
 
   return (
     <div className="chat-root">
@@ -121,6 +130,11 @@ export default function ChatBotPage({ userId = "Sophia" }) {
             {msg.time && <span className="chat-time">{msg.time}</span>}
           </div>
         ))}
+        {loading && (
+          <div className={`chat-message agent chat-typing`}>
+            <div className="chat-bubble">Agent is typing<span className="typing-dots">...</span></div>
+          </div>
+        )}
         <div ref={chatEndRef}></div>
       </div>
 
@@ -134,6 +148,7 @@ export default function ChatBotPage({ userId = "Sophia" }) {
           disabled={loading}
         />
 
+        {/* microphone/voice UI temporarily commented out
         <button
           type="button"
           className="chat-mic-btn"
@@ -143,6 +158,7 @@ export default function ChatBotPage({ userId = "Sophia" }) {
         >
           🎤
         </button>
+        */}
 
         <button className="chat-send-btn" type="submit" disabled={loading}>
           Send
@@ -150,6 +166,7 @@ export default function ChatBotPage({ userId = "Sophia" }) {
       </form>
 
       {/* Voice Modal */}
+      {/* voice modal temporarily disabled
       {showVoiceModal && (
         <div className="voice-modal">
           <div className="voice-box">
@@ -178,6 +195,7 @@ export default function ChatBotPage({ userId = "Sophia" }) {
           </div>
         </div>
       )}
+      */}
     </div>
   );
 }

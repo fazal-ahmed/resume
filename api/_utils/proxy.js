@@ -9,6 +9,8 @@ function setCors(res) {
 async function proxyRequest(req, res, targetUrl) {
   setCors(res);
 
+  console.log('[api/_utils/proxy] proxyRequest', { method: req.method, url: req.url, target: targetUrl });
+
   if (req.method === "OPTIONS") {
     res.statusCode = 204;
     res.end();
@@ -26,6 +28,7 @@ async function proxyRequest(req, res, targetUrl) {
   });
 
   res.statusCode = upstreamRes.status;
+  console.log('[api/_utils/proxy] upstream status', upstreamRes.status);
 
   upstreamRes.headers.forEach((value, key) => {
     if (key.toLowerCase() === "transfer-encoding") return;
