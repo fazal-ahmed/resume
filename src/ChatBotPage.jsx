@@ -54,7 +54,7 @@ export default function ChatBotPage({ userId = "Sophia" }) {
         content: m.content,
       }));
 
-      const res = await axios.post(`${API_BASE}/api/chat/${userId}`, {
+      const res = await axios.post(`${API_BASE}/chat/${userId}`, {
         message: messageText,
         history,
       });
